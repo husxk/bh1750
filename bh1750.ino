@@ -4,17 +4,16 @@
 
 BH1750 lightMeter;
 
-  float wattsGenerated = 0; // w/m2
-  int examineTime = 0; // s
+float wattsGenerated = 0; // w/m2
+int examineTime = 0; // s
 
-  float wattsGeneratedReaded;
-  int examineTimeReaded;
+float wattsGeneratedReaded;
+int examineTimeReaded;
 
 void readDataFromEEPROM(int);
 
 void setup()
 {
- 
   Serial.begin(9600);         
   Wire.begin();               // Enable I2C pins of Arduino
   lightMeter.begin();
@@ -27,7 +26,6 @@ void setup()
   Serial.print("kW overall, examineded in time (s): ");
   Serial.println(examineTimeReaded);
   delay(5000);
-
 }
 
 void displayInfo(float lux, float watts, float wattsGenerated, float toNow)
@@ -48,7 +46,7 @@ bool writeDataToEEPROM(int address, int data)
     EEPROM.write(address, wattsGenerated);
   else
     EEPROM.write(address, examineTime);
-  
+
   return EEPROM.commit();
 }
 
@@ -77,11 +75,11 @@ void loop()
 {
   float lux = lightMeter.readLightLevel();
   float watts = lux * 0.0079;
-  wattsGenerated += watts/1000; //kW
+  wattsGenerated += watts / 1000; //kW
   examineTime++;
   float toNow = wattsGenerated/examineTime; /* ~0.72W/m2 dziennie okolo 2,612 kWh/m2/dzien 
                                               luty srednio 0.99kwh/m2/day */
-  
+
   displayInfo(lux, watts, wattsGenerated, toNow);
   
   saveData(0);
