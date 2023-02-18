@@ -1,31 +1,17 @@
 #include <Wire.h>         // adds I2C library 
 #include <BH1750.h>       // adds BH1750 library file 
-#include <EEPROM.h>
 
 BH1750 lightMeter;
 
 float wattsGenerated = 0; // w/m2
 long examineTime = 0; // s
 
-float wattsGeneratedReaded;
-long examineTimeReaded;
-
-void readDataFromEEPROM(int);
-
 void setup()
 {
   Serial.begin(9600);         
   Wire.begin();               // Enable I2C pins of Arduino
   lightMeter.begin();
-  EEPROM.begin(sizeof(float)+ sizeof(long));
   delay(2000);
-
-  readDataFromEEPROM(0);
-  Serial.println();
-  Serial.print(wattsGeneratedReaded * 3600);
-  Serial.print("kWh/m2 overall, examineded in time (s): ");
-  Serial.println(examineTimeReaded);
-  delay(5000);
 }
 
 void displayInfo(float lux, float watts, float wattsGenerated, float toNow)
@@ -37,42 +23,13 @@ void displayInfo(float lux, float watts, float wattsGenerated, float toNow)
   Serial.print(wattsGenerated);
   Serial.print("kW, avarage to now: ");
   Serial.print(toNow * 3600);
-  Serial.print("kWh/m2/time, in time ");
+  Serial.print("kWh/m2, in time ");
   Serial.print(examineTime);
   Serial.print("s, in hours: ");
   Serial.print(float(examineTime / 3600));
-  Serial.println("h");
-}
-
-bool writeDataToEEPROM(int address, int data)
-{
-  if(data == 1)
-    EEPROM.write(address, wattsGenerated);
-  else
-    EEPROM.write(address, examineTime);
-
-  return EEPROM.commit();
-}
-
-void isSuccess(bool success)
-{
-  Serial.print("Saving to EEPROM... Return: ");
-  Serial.println(success);
-}
-
-void saveData(int address) // default: 0
-{
-  bool success = writeDataToEEPROM(address, 1);
-  isSuccess(success);
-
-  success = writeDataToEEPROM(address + sizeof(float), 2);
-  isSuccess(success);
-}
-
-void readDataFromEEPROM(int address) // deafault: 0
-{
-  wattsGeneratedReaded = EEPROM.read(address);
-  examineTimeReaded = EEPROM.read(address + sizeof(float));
+  Serial.print("h, overall: ");
+  Serial.print(wattsGenerated / 24);
+  Serial.println("kWh/m2/day");
 }
 
 void loop()
@@ -85,8 +42,6 @@ void loop()
                                               luty srednio 0.99kwh/m2/day */
 
   displayInfo(lux, watts, wattsGenerated, toNow);
-  
-  saveData(0);
   
   delay(1000);
 }
