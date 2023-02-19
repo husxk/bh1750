@@ -1,5 +1,5 @@
-#include <Wire.h>         // adds I2C library 
-#include <BH1750.h>       // adds BH1750 library file 
+#include <Wire.h>        
+#include <BH1750.h>      
 
 BH1750 lightMeter;
 
@@ -14,21 +14,17 @@ void setup()
   delay(2000);
 }
 
-void displayInfo(float lux, float watts, float wattsGenerated, float toNow)
+void displayInfo(float lux, float watts, float wattsGenerated, float isolationThisDay)
 {
   Serial.print(lux);                       
-  Serial.print("lx now, watss now: "); 
+  Serial.print("lx now, watts now: "); 
   Serial.print(watts);
   Serial.print("W, overall watts generated: ");
   Serial.print(wattsGenerated);
-  Serial.print("kW, avarage to now: ");
-  Serial.print(toNow * 3600);
-  Serial.print("kWh/m2, in time ");
+  Serial.print("kW, in time ");
   Serial.print(examineTime);
-  Serial.print("s, in hours: ");
-  Serial.print(float(examineTime / 3600));
-  Serial.print("h, overall: ");
-  Serial.print(wattsGenerated / 24);
+  Serial.print("s, overall: ");
+  Serial.print(isolationThisDay);
   Serial.println("kWh/m2/day");
 }
 
@@ -36,12 +32,12 @@ void loop()
 {
   float lux = lightMeter.readLightLevel();
   float watts = lux * 0.0079;
-  wattsGenerated += watts / 1000; // kW
-  examineTime++;
-  float toNow = wattsGenerated / examineTime; /* ~0.72W/m2 dziennie okolo 2,612 kWh/m2/dzien 
+  wattsGenerated += (watts / 1000); // kW
+  examineTime++; /* ~0.72W/m2 dziennie okolo 2,612 kWh/m2/dzien 
                                               luty srednio 0.99kwh/m2/day */
+  float isolationThisDay = wattsGenerated / 3600; // wattsGenerated * 24 [kWh] / ( 24[hours examinated] * 3600[every examine] ) [kWh/m2/day]
 
-  displayInfo(lux, watts, wattsGenerated, toNow);
+  displayInfo(lux, watts, wattsGenerated, isolationThisDay);
   
   delay(1000);
 }
