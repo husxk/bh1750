@@ -1,56 +1,45 @@
 #include <Wire.h>        
 #include <BH1750.h>      
 
-BH1750 lightMeter;
+BH1750 luxMeter;
 
-float wattsGenerated = 0; // w/m2
+float insolationGenerated = 0; // kW/m2
 long examineTime = 0; // s
-float insolationInDay = 0;
-float overallInsolationInDay = 0;
+float avarageInsolationForDay = 0;
 
 void setup()
 {
   Serial.begin(9600);         
   Wire.begin();               // Enable I2C pins of Arduino
-  lightMeter.begin();
+  luxMeter.begin();
   delay(2000);
 }
 
-void displayInfo(float lux, float watts, float wattsGenerated, float insolationThisDay, float insolationNow)
+void displayInfo(float lux, float insolationInMoment, float insolationGenerated)
 {
   Serial.print(lux);                       
-  Serial.print("lx now, watts now: "); 
-  Serial.print(watts);
-  Serial.print("W, overall watts generated: ");
-  Serial.print(wattsGenerated);
-  Serial.print("kW, in time ");
+  Serial.print("lx now, insolation now: "); 
+  Serial.print(insolationInMoment);
+  Serial.print("W/m2, overall insolationGenerated: ");
+  Serial.print(insolationGenerated);
+  Serial.print("kW/m2, in time ");
   Serial.print(examineTime);
-  Serial.print("s, overall: ");
-  Serial.print(insolationThisDay);
-  Serial.print("kWh/m2/day, another measurement: insolation now:");
-  Serial.print(insolationNow);
-  Serial.print("Wh/m2/now, ");
-  Serial.print(insolationInDay);
-  Serial.print("Wh/m2/day, overall insolation: ");
-  Serial.print(overallInsolationInDay);
-  Serial.println("Wh/m2");
+  Serial.print("s, avarageInsolationForDay ");
+  Serial.print(avarageInsolationForDay);
+  Serial.println("kW/m2/today");
 }
 
 void loop()
 {
-  float lux = lightMeter.readLightLevel();
-  float watts = lux * 0.0079; // w/m2
+  float lux = luxMeter.readLightLevel();
+  float insolationInMoment = lux * 0.0079; // w/m2
   
-  wattsGenerated += (watts / 1000); // kW
-  examineTime++;                            /* ~0.72W/m2 dziennie okolo 2,612 kWh/m2/dzien // luty srednio 0.99kwh/m2/day */
+  insolationGenerated += (insolationInMoment / 1000); // kW/m2
+  examineTime++; // s
 
-  float insolationThisDay = wattsGenerated / 3600; // wattsGenerated * 24 [kWh] / ( 24[hours examinated] * 3600[every examine] ) [kWh/m2/day]
+  avarageInsolationForDay = insolationGenerated / (24 * 3600); // (every measurement) / (number of measures in whole day) // kW/m2/today
 
-  float insolationNow = (watts / 3600); // wh/m2
-  overallInsolationInDay += insolationNow; 
-  insolationInDay = (insolationInDay / 24) / 3600;  
-
-  displayInfo(lux, watts, wattsGenerated, insolationThisDay, insolationNow);
+  displayInfo(lux, insolationInMoment, insolationGenerated);
   
   delay(1000);
 }
