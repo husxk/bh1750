@@ -5,7 +5,7 @@ BH1750 luxMeter;
 
 float insolationGenerated = 0; // kW/m2
 long examineTime = 0; // s
-float avarageInsolationForDay = 0;
+float averageInsolationForDay = 0;
 
 void setup()
 {
@@ -24,9 +24,9 @@ void displayInfo(float lux, float insolationInMoment, float insolationGenerated)
   Serial.print(insolationGenerated);
   Serial.print("kW/m2, in time ");
   Serial.print(examineTime);
-  Serial.print("s, avarageInsolationForDay ");
-  Serial.print(avarageInsolationForDay);
-  Serial.println("kW/m2/today");
+  Serial.print("s, averageInsolationForDay ");
+  Serial.print(averageInsolationForDay);
+  Serial.println("W/m2/today");
 }
 
 void loop()
@@ -37,7 +37,7 @@ void loop()
   insolationGenerated += (insolationInMoment / 1000); // kW/m2
   examineTime++; // s
 
-  avarageInsolationForDay = insolationGenerated / (24 * 3600); // (every measurement) / (number of measures in whole day) // kW/m2/today
+  averageInsolationForDay = (insolationGenerated * 1000) / (24 * 3600); // (every measurement) / (number of measures in whole day) // W/m2/today
 
   displayInfo(lux, insolationInMoment, insolationGenerated);
   
